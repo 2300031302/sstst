@@ -13,9 +13,17 @@ app.get("/take-ss-leetcode", async (req, res) => {
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
-                "--disable-gpu",
                 "--disable-dev-shm-usage",
-                "--disable-software-rasterizer"
+                "--disable-gpu",
+                "--disable-software-rasterizer",
+                "--disable-background-networking",
+                "--disable-default-apps",
+                "--disable-extensions",
+                "--disable-sync",
+                "--metrics-recording-only",
+                "--mute-audio",
+                "--no-first-run",
+                "--safebrowsing-disable-auto-update"
             ]
         });
 
