@@ -8,8 +8,11 @@ app.get("/take-ss-leetcode", async (req, res) => {
     let browser;
 
     try {
+        console.log("Launching Chrome...");
+
         browser = await puppeteer.launch({
             headless: "new",
+            executablePath: puppeteer.executablePath(),   // ★ Render needs this
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
@@ -27,6 +30,8 @@ app.get("/take-ss-leetcode", async (req, res) => {
             ]
         });
 
+        console.log("Browser started!");
+
         const page = await browser.newPage();
 
         await page.setViewport({
@@ -39,33 +44,49 @@ app.get("/take-ss-leetcode", async (req, res) => {
             "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         );
 
+        console.log("Opening LeetCode...");
         await page.goto("https://leetcode.com/u/klu2300031302/", {
-            waitUntil: "networkidle2"
+            waitUntil: "networkidle2",
+            timeout: 60000
         });
 
-        await new Promise(r => setTimeout(r, 5000));
+        await new Promise(r => setTimeout(r, 6000)); // wait for dynamic data
+
+        console.log("Taking screenshot...");
+
+        const x1 = 40, y1 = 95;
+        const x2 = 308, y2 = 175;
 
         const rect = {
-            x: 40,
-            y: 95,
-            width: 308 - 40,
-            height: 175 - 95
+            x: x1,
+            y: y1,
+            width: x2 - x1,
+            height: y2 - y1
         };
 
         const buffer = await page.screenshot({
-            clip: rect,
-            type: "png"
+            type: "png",
+            clip: rect
         });
 
+        console.log("Screenshot captured!");
+
         res.setHeader("Content-Type", "image/png");
-        res.send(buffer);
+        return res.send(buffer);
 
     } catch (err) {
-        console.error("ERROR:", err);
-        res.status(500).send("Screenshot failed");
+        console.error("🔥 ERROR OCCURRED:");
+        console.error(err);
+
+        return res
+            .status(500)
+            .send("Screenshot failed");
     } finally {
-        if (browser) await browser.close();
+        if (browser) {
+            console.log("Closing browser...");
+            await browser.close();
+        }
     }
 });
 
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, () => console.log(`✔ Server running on port ${PORT}`));
